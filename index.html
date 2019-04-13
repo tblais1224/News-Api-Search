@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link href="styles.css" rel="stylesheet" />
+    <title>TB's News Search</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <!-- <script src="index.js"></script> -->
+</head>
+
+<body>
+    <div id="wrapper">
+        <div id="page-banner">
+            <h1 class="title">TB's news API</h1>
+            <p>News search API</p>
+            <div class="input-field">
+                <input type="search" id='newsText' placeholder="Search News..." />
+                <input type="search" id='newsDate' placeholder="Data range: ex. 2019-03-13" />
+                
+            </div>
+            <button id="btn-searchNews">Submit Search</button>
+        </div>
+        <div id='result'>
+            <!-- this is where the search results are inserted -->
+        </div>
+    </div>
+    <script type="text/javascript">
+        document.getElementById('btn-searchNews').addEventListener('click', loadText);
+
+        function loadText() {
+            //cannot access the constructor directly in console.log or anything must set to variable
+            var xhrCall = new XMLHttpRequest();
+            var dateInput = $("#newsDate").val();
+            var searchInput = $("#newsText").val();
+            console.log(dateInput);
+            var url =
+                `https://newsapi.org/v2/everything?q=${searchInput}&from=${dateInput}&sortBy=publishedAt&apiKey=enter-your-key-here`;
+            //this puts the file1.txt data into responseText
+            xhrCall.open('GET', url, true);
+
+            //.onload checks the ready state automatically but not the status
+            xhrCall.onload = function () {
+                //convert from a string ot an object using JSON.parse()
+                var img = "";
+                var title = "";
+                var author = "";
+                var urlLink = "";
+
+                var data = JSON.parse(this.responseText);
+                for (let i = 0; i < data.articles.length; i++) {
+                    results = $('<div id="result"></div>');
+
+                    newsDiv = $(
+                        `<div class="searchResultDiv" id="news-container${i}"></div>`
+                    );
+
+                    title = $(
+                        '<h5 class="center-align">' +
+                        data.articles[i].title +
+                        "</h5>"
+                    );
+                    //adds the item author from the api
+                    author = $(
+                        '<h5 class="center-align">' +
+                        data.articles[i].author +
+                        "</h5>"
+                    );
+                    //adds an img tag and creates a button with an href link to the google books page for the item
+                    img = $(
+                        '<img class="news-images"><br><a href=' +
+                        data.articles[i].url +
+                        '><button id="imagebutton">Read More</button></a></img>'
+                    );
+                    urlArticle = data.articles[i].urlToImage;
+                    img.attr("src", urlArticle); //attaches image url
+
+
+                    results.appendTo("header");
+                    newsDiv.appendTo("#result");
+                    title.appendTo(`#news-container${i}`);
+                    author.appendTo(`#news-container${i}`);
+                    img.appendTo(`#news-container${i}`);
+                }
+                console.log(data)
+
+            }
+            //must send data after opening
+            xhrCall.send()
+        }
+    </script>
+</body>
+
+</html>
